@@ -1,3 +1,21 @@
+eval_jp_boundary <- function(longitude, 
+                             latitude) {
+  
+  # ref) https://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E3%81%AE%E7%AB%AF%E3%81%AE%E4%B8%80%E8%A6%A7
+  res <- dplyr::if_else(
+    dplyr::between(latitude,
+                   20.425555,
+                   45.52640) &
+      dplyr::between(longitude,
+                     123.00472,
+                     153.9805),
+    TRUE,
+    FALSE
+  )
+  
+  return(res)
+}
+
 detect_gird_area <- function(d = NULL, code = NULL){
   
   lat.e <- d$lat_error / 2
@@ -270,19 +288,71 @@ bundle_mesh_vars <- function(df) {
   
 }
 
-poly_to_geojson <- function(df) {
+mk_poly <- function(d) {
   
-  i <- NULL
+  long_center <- long_error <- lat_center <- lat_error <- poly <- NULL
   
-  list.polygons <- foreach(i = 1:nrow(df)) %do% {
-    sp::Polygons(
-      list(sp::Polygon(
-        cbind(
-          c(df[i, ]$lng1, df[i, ]$lng1, df[i, ]$lng2, df[i, ]$lng2, df[i, ]$lng1),
-          c(df[i, ]$lat2, df[i, ]$lat1, df[i, ]$lat1, df[i, ]$lat2, df[i, ]$lat2)))),
-      df[i, ]$mesh_code)
+  res <- d %>%
+    dplyr::mutate(poly = sf::st_polygon(list(rbind(c(long_center - long_error, lat_center - lat_error),
+                                                   c(long_center + long_error, lat_center - lat_error),
+                                                   c(long_center + long_error, lat_center + lat_error),
+                                                   c(long_center - long_error, lat_center + lat_error),
+                                                   c(long_center - long_error, lat_center - lat_error))))) %>%
+    magrittr::use_series(poly)
+  
+  return(res)
+}
+mk_poly2 <- function(d) {
+  
+  lng1 <- lng2 <- lat1 <- lat2 <- poly <- NULL
+  
+  res <- d %>% 
+    dplyr::mutate(
+      poly = sf::st_polygon(list(cbind(c(lng1, lng1, lng2, lng2, lng1),
+                                       c(lat2, lat1, lat1, lat2, lat2))))
+    ) %>% 
+    magrittr::use_series(poly)
+  
+  return(res)
+}
+
+poly_to_sf <- function(df) {
+  
+  .out <- NULL
+  
+  res <- 
+    tibble::tibble(
+      mesh_code = df$mesh_code,
+      poly =  df %>%
+        purrrlyr::slice_rows("mesh_code") %>%
+        purrrlyr::by_slice(
+          mk_poly2
+        ) %>% magrittr::use_series(.out) %>% sf::st_sfc()
+    ) %>% sf::st_as_sf()
+  
+  return(res)
+}
+
+mod_mesh_rectangle <- function(df, code = "mesh_code", view = FALSE) {
+  mesh_code <- NULL
+  df.mesh <- df %>%
+    dplyr::select(code) %>%
+    unique() %>%
+    magrittr::set_colnames(c("mesh_code")) %>%
+    dplyr::mutate(mesh_area = purrr::map(mesh_code, meshcode_to_latlon)) %>%
+    tidyr::unnest() %>%
+    bundle_mesh_vars() %>%
+    tibble::rownames_to_column()
+  if (view != TRUE) {
+    res <- df.mesh
+  } else {
+    map.mesh <- leaflet() %>%
+      addTiles() %>%
+      addRectangles(data = df.mesh,
+                    lng1 = df.mesh$lng1, lat1 = df.mesh$lat1,
+                    lng2 = df.mesh$lng2, lat2 = df.mesh$lat2)
+    res <- list(data = df.mesh,
+                map  = map.mesh)
   }
-  str.geojson <- geojsonio::geojson_json(sp::SpatialPolygons(Srl = list.polygons, pO = 1:nrow(df)), geometry = "polygon")
-  
-  return(str.geojson)
+  return(res)
 }

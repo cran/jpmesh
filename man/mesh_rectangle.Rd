@@ -4,7 +4,7 @@
 \alias{mesh_rectangle}
 \title{mesh rectangle check}
 \usage{
-mesh_rectangle(df, code = "mesh_code", view = TRUE)
+mesh_rectangle(df, code = "mesh_code", view = FALSE)
 }
 \arguments{
 \item{df}{data.frame}
@@ -18,8 +18,10 @@ Multiple mesh coverd area.
 }
 \examples{
 \dontrun{
-library(dplyr)
-mesh_rectangle(pref_mesh(33), code = "id", view = FALSE)
+mesh_rectangle(data.frame(mesh = 6041,
+lat_center = 40.3333333333,
+long_center = 141.5,
+lat_error =  0.33,
+long_error = 0.5), "mesh", view = FALSE)
 }
 }
-
