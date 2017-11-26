@@ -1,3 +1,9 @@
+# jpmesh 1.0.0 (2017-11-27)
+
+- Consolidation of functions by integration and abolition. Rename of function name. Such as, argument order.
+- You can now convert coordinates to 125m meshcode. As a result, it became to support to all meshcodes.
+- Update Polygon Export Function (`export_mesh`)
+
 # jpmesh 0.4.0 (2017-09-01)
 
 - Using sf api.
