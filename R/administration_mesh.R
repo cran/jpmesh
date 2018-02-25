@@ -8,7 +8,7 @@
 #' @importFrom purrr pmap
 #' @examples 
 #' \dontrun{
-#' administration_mesh(code = c(35201))
+#' administration_mesh(code = c(35201), type = "city")
 #' administration_mesh(code = c(35), type = "prefecture")
 #' administration_mesh(code = c(33, 34), type = "prefecture")
 #' }
@@ -16,7 +16,7 @@
 #' @export
 administration_mesh <- function(code, type = c("prefecture")) {
   
-  . <- city_code <- meshcode <- .out <- NULL
+  . <- city_code <- meshcode <- NULL
   
   if (type == "prefecture") {
     df_city_mesh <- df_city_mesh %>% 
@@ -24,7 +24,8 @@ administration_mesh <- function(code, type = c("prefecture")) {
   }
   
   df_origin <- df_city_mesh %>% 
-    dplyr::filter(grepl(paste0("^(", paste(code, collapse = "|"), ")"), city_code))
+    dplyr::filter(
+      grepl(paste0("^(", paste(code, collapse = "|"), ")"), city_code))
   
   res <- df_origin %>% 
     dplyr::distinct(meshcode) %>% 

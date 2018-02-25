@@ -28,12 +28,15 @@ coords_to_mesh(133, 34, "80km") %>%
 
 # 隣接するメッシュコードを同じスケールで返します
 coords_to_mesh(133, 34, "80km") %>% 
-  find_neighbor_mesh()
+  neighbor_mesh()
 coords_to_mesh(133, 34, "500m") %>% 
-  find_neighbor_mesh()
+  neighbor_mesh()
 
 ## ---- results = "asis"---------------------------------------------------
 administration_mesh(code = 33, type = "prefecture") %>% 
   head() %>% 
   knitr::kable(format = "markdown")
+
+## ---- sessioninfo--------------------------------------------------------
+sessionInfo()
 

@@ -1,8 +1,7 @@
 #' @title Check include mesh areas
 #' 
 #' @description It roughly judges whether the given coordinates are within the mesh area.
-#' @param longitude longitude (double)
-#' @param latitude latitude (double)
+#' @inheritParams coords_to_mesh
 #' @param ... other parameters
 #' @importFrom dplyr between if_else
 #' @examples 
@@ -14,9 +13,7 @@
 eval_jp_boundary <- function(longitude = NULL, 
                              latitude = NULL,
                              ...) {
-  
-  # ref) https://ja.wikipedia.org/wiki/%E6%97%A5%E6%9C%AC%E3%81%AE%E7%AB%AF%E3%81%AE%E4%B8%80%E8%A6%A7
-  res <- dplyr::if_else(
+    res <- dplyr::if_else(
     dplyr::between(latitude,
                    20.0,
                    46.0) &
@@ -31,8 +28,7 @@ eval_jp_boundary <- function(longitude = NULL,
 }
 
 
-mesh_to_poly <- function(lng_center, lat_center, lng_error, lat_error, ...) 
-{
+mesh_to_poly <- function(lng_center, lat_center, lng_error, lat_error, ...) {
   res <- sf::st_polygon(list(rbind(c(lng_center - lng_error, 
                                      lat_center - lat_error), 
                                    c(lng_center + lng_error, 
@@ -45,6 +41,27 @@ mesh_to_poly <- function(lng_center, lat_center, lng_error, lat_error, ...)
     sf::st_as_text()
   return(res)
 }
+
+mesh_size <- function(mesh) {
+  
+  dplyr::case_when(
+    nchar(mesh) == df_mesh_size_unit$mesh_length[1] ~ df_mesh_size_unit$mesh_size[1],
+    nchar(mesh) == df_mesh_size_unit$mesh_length[2] ~ df_mesh_size_unit$mesh_size[2],
+    nchar(mesh) == df_mesh_size_unit$mesh_length[3] ~ df_mesh_size_unit$mesh_size[3],
+    nchar(mesh) == df_mesh_size_unit$mesh_length[4] ~ df_mesh_size_unit$mesh_size[4],
+    nchar(mesh) == df_mesh_size_unit$mesh_length[5] ~ df_mesh_size_unit$mesh_size[5],
+    nchar(mesh) == df_mesh_size_unit$mesh_length[6] ~ df_mesh_size_unit$mesh_size[6]
+  )
+  
+}
+
+df_mesh_size_unit <- tibble::data_frame(
+  mesh_length = c(4L, 6L, 8L, 9L, 10L, 11L),
+  mesh_size = c(
+    units::set_units(c(80, 10, 1), "km"),
+    units::set_units(c(500, 250, 125), "m")
+  )
+)
 
 meshcode_set_80km <- as.character(c(3036,
   3622, 3623, 3624, 3631, 3641, 3653,
@@ -89,7 +106,7 @@ meshcode_set_1km <- meshcode_set_10km %>%
   purrr::map(fine_separate) %>%
   purrr::flatten_chr()
 
-#' Export 80km meshcode vectors
+#' Export meshcode vectors ranges 80km to 1km.
 #' 
 #' Unique 176 meshcodes. 
 #' The output code may contain values not found in the actual mesh code.
@@ -98,9 +115,58 @@ meshcode_set_1km <- meshcode_set_10km %>%
 #' @importFrom dplyr case_when
 #' @importFrom purrr as_vector map reduce
 #' @importFrom rlang as_list
+#' @examples 
+#' meshcode_set(mesh_size = "80km")
+#' @export
 meshcode_set <- function(mesh_size = c("80km", "10km", "1km")) {
   mesh_size <- match.arg(mesh_size)
   get(sprintf("meshcode_set_%s", mesh_size), envir = asNamespace("jpmesh"))
 }
 
+#' Cutoff mesh of outside the area
+#' 
+#' @inheritParams mesh_to_coords
+cut_off <- function(meshcode) {
+  
+  mesh_80km <- substr(meshcode, 1, 4)
+  
+  res <- meshcode[mesh_80km %in% c(jpmesh::meshcode_set("80km"))]
+  if (length(res) < length(meshcode)) {
+    rlang::warn("Some neighborhood meshes are outside the area.")
+  }
 
+  res <- res %>% sort() %>% 
+    as.character()
+  
+  return(res)
+}
+
+validate_neighbor_mesh <- function(meshcode) {
+  
+  . <- geometry <- NULL
+  
+  df_bbox <- find_neighbor_mesh(meshcode) %>% 
+    tibble::tibble("mesh" = .) %>% 
+    dplyr::mutate(geometry = purrr::pmap(., ~ export_mesh(mesh = ..1) %>% 
+                                           sf::st_as_text())) %>% 
+    tidyr::unnest() %>% 
+    dplyr::mutate(geometry = sf::st_as_sfc(geometry)) %>% 
+    sf::st_sf() %>% 
+    sf::st_union() %>% 
+    sf::st_bbox()
+  
+  df_res <- tibble::tibble(
+    xlim = as.numeric(df_bbox[3] - df_bbox[1]),
+    ylim = as.numeric(df_bbox[4] - df_bbox[2])
+  )
+  
+  return(df_res)
+}
+
+bind_meshpolys <- function(meshcode) {
+  meshcode %>% 
+    purrr::map(fine_separate) %>% 
+    purrr::reduce(c) %>% 
+    unique() %>%
+    export_meshes()
+}

@@ -1,15 +1,15 @@
 #' @title Convert from coordinate to mesh code
 #' 
 #' @description From coordinate to mesh codes.
-#' @param longitude longitude (double)
-#' @param latitude latitude (double)
+#' @param longitude longitude that approximately to .120.0 to 154.0 (`double`)
+#' @param latitude latitude that approximately to 20.0 to 46.0 (`double`)
 #' @param mesh_size mesh type. From 80km to 125m
 #' @param ... other parameters
 #' @importFrom dplyr case_when
-#' @importFrom rlang is_true quo_expr
-#' @return mesh code (default 3rd meshcode)
-#' @author Akio Takenaka
-#' @details http://takenaka-akio.org/etc/j_map/index.html
+#' @importFrom rlang is_true quo_expr warn
+#' @return mesh code (default 3rd meshcode aka 1km mesh)
+#' @references Akio Takenaka: [http://takenaka-akio.org/etc/j_map/index.html](http://takenaka-akio.org/etc/j_map/index.html)
+#' @seealso [mesh_to_coords()] for convert from meshcode to coordinates
 #' @examples 
 #' coords_to_mesh(141.3468, 43.06462, mesh_size = "10km")
 #' coords_to_mesh(139.6917, 35.68949, mesh_size = "250m")
@@ -64,7 +64,10 @@ coords_to_mesh <- function(longitude, latitude, mesh_size = "1km", ...) {
       code10 <- (code_t * 2) + (code_y + 1)
       code11 <- (code_u * 2) + (code_z + 1)
       
-      meshcode <- paste0(code12, code34, code5, code6, code7, code8, code9, code10, code11)
+      meshcode <- paste0(code12, code34, 
+                         code5, code6, 
+                         code7, code8, 
+                         code9, code10, code11)
       
       mesh_sets <- list(
         mesh_size == "80km" ~ substr(meshcode, 1, 4),
@@ -81,11 +84,11 @@ coords_to_mesh <- function(longitude, latitude, mesh_size = "1km", ...) {
       
       return(meshcode)   
     } else if (is.na(check_80km_ares)) {
-      warning("Longitude / Latitude values is out of range.")
-      return(NA)
+      rlang::warn("Longitude / Latitude values is out of range.")
+      return(NA_character_)
     }
     } else if (coords_evalated == FALSE) {
-    warning("Longitude / Latitude values is out of range.")
-    return(NA)
+      rlang::warn("Longitude / Latitude values is out of range.")
+      return(NA_character_)
     }
 }

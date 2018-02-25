@@ -1,3 +1,17 @@
+# jpmesh 1.1.0
+
+- Support units system ([#15](https://github.com/uribo/jpmesh/issues/15))
+- Bug fixed ([#13](https://github.com/uribo/jpmesh/issues/13))
+- All return mesh code should be character.
+- Set sf object espg as `4326`.
+
+## New features
+
+- `is_meshcode()`, `is_corner()`... Predict meshcode format and positions for utility and certain.
+- `rmesh()`... 
+- Rename `find_neighbor_mesh()` to `neighbor_mesh()` and separate features (not export functions).
+- `export_meshes()`
+
 # jpmesh 1.0.1
 
 - add vignettes 1: How to use mesh cord in R
