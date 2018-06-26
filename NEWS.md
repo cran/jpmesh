@@ -1,4 +1,14 @@
-# jpmesh 1.1.0
+# jpmesh 1.1.1 (2018-06-26)
+
+- Withdrawal from the tidyverse. Remove depends on stringr, tidyr and dplyr.
+- Follow up the units package update.
+- Fixed overlapped probrem ([#20](https://github.com/uribo/jpmesh/issues/20))
+
+### New features
+
+- `coarse_gather()`... Scale-down function [#22](https://github.com/uribo/jpmesh/issues/22)
+
+# jpmesh 1.1.0 (2018-02-25)
 
 - Support units system ([#15](https://github.com/uribo/jpmesh/issues/15))
 - Bug fixed ([#13](https://github.com/uribo/jpmesh/issues/13))
@@ -12,7 +22,7 @@
 - Rename `find_neighbor_mesh()` to `neighbor_mesh()` and separate features (not export functions).
 - `export_meshes()`
 
-# jpmesh 1.0.1
+# jpmesh 1.0.1 (2017-12-04)
 
 - add vignettes 1: How to use mesh cord in R
 

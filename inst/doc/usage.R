@@ -1,7 +1,6 @@
 ## ---- warning = FALSE, message = FALSE-----------------------------------
 library(jpmesh)
 library(sf)
-library(dplyr)
 library(purrr)
 
 ## ------------------------------------------------------------------------
@@ -11,10 +10,6 @@ mesh_to_coords(51337783)
 
 ## ------------------------------------------------------------------------
 export_mesh(5133778311)
-
-mesh_to_coords(5133778311) %>% 
-  dplyr::mutate(geometry = purrr::pmap_chr(., ~ jpmesh:::mesh_to_poly(...))) %>% 
-  dplyr::select(geometry)
 
 ## ------------------------------------------------------------------------
 coords_to_mesh(133, 34)

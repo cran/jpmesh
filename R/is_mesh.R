@@ -9,7 +9,7 @@ NULL
 #' @rdname is_mesh
 is_meshcode <- function(meshcode) {
   
-  res <- dplyr::if_else(grepl("^[0-9]{4,11}$", meshcode), TRUE, FALSE)
+  res <- ifelse(grepl("^[0-9]{4,11}$", meshcode), TRUE, FALSE)
   
   if (res == FALSE) {
     rlang::inform(paste("meshcode must be numeric ranges", 
@@ -19,7 +19,7 @@ is_meshcode <- function(meshcode) {
                         "digits"
     ))
   } else {
-    res <- dplyr::if_else(is.na(units::drop_units(mesh_size(meshcode))),
+    res <- ifelse(is.na(units::drop_units(mesh_size(meshcode))),
                           FALSE,
                           TRUE)
     if (res == FALSE) {
@@ -44,11 +44,11 @@ is.mesh <- function(meshcode) {
 is_corner <- function(meshcode) {
   size <- mesh_size(meshcode)
   
-  if (size == units::as.units(80, "km")) {
+  if (size == units::as_units(80, "km")) {
     rlang::abort("enable 10km or 1km mesh")
-  } else if (size == units::as.units(10, "km")) {
+  } else if (size == units::as_units(10, "km")) {
     res <- grepl("(0[0-7]|[0-7]0|7[0-7]|[0-7]7)$", meshcode)
-  } else if (size == units::as.units(1, "km")) {
+  } else if (size == units::as_units(1, "km")) {
     res <- grepl("(0[0-9]|[0-9]0|9[0-9]|[0-9]9)$", meshcode)
   }
   

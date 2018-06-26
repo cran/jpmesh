@@ -3,7 +3,13 @@
 jpmesh <img src="man/figures/logo.png" align="right" width="80px" />
 ====================================================================
 
-[![Travis-CI Build Status](https://travis-ci.org/uribo/jpmesh.svg?branch=master)](https://travis-ci.org/uribo/jpmesh) [![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/jpmesh)](https://cran.r-project.org/package=jpmesh) [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/jpmesh)](https://cran.r-project.org/package=jpmesh) [![Coverage status](https://codecov.io/gh/uribo/jpmesh/branch/master/graph/badge.svg)](https://codecov.io/github/uribo/jpmesh?branch=master)
+[![CRAN\_Status\_Badge](http://www.r-pkg.org/badges/version/jpmesh)](https://cran.r-project.org/package=jpmesh) [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/jpmesh?color=FF5254)](https://cran.r-project.org/package=jpmesh) [![minimal R version](https://img.shields.io/badge/R%3E%3D-3.1.0-blue.svg)](https://cran.r-project.org/) [![Depsy](http://depsy.org/api/package/cran/jpmesh/badge.svg)](http://depsy.org/package/r/jpmesh) [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.1185742.svg)](https://doi.org/10.5281/zenodo.1185742)
+
+[![Travis-CI Build Status](https://travis-ci.org/uribo/jpmesh.svg?branch=master)](https://travis-ci.org/uribo/jpmesh) [![wercker status](https://app.wercker.com/status/25d5f835882cf2185751e1d89370269f/s/master "wercker status")](https://app.wercker.com/project/byKey/25d5f835882cf2185751e1d89370269f) [![Coverage status](https://codecov.io/gh/uribo/jpmesh/branch/master/graph/badge.svg)](https://codecov.io/github/uribo/jpmesh?branch=master)
+
+[![lifecycle](https://img.shields.io/badge/lifecycle-maturing-blue.svg?style=for-the-badge)](https://www.tidyverse.org/lifecycle/#maturing) [![npm](https://img.shields.io/npm/l/express.svg?style=for-the-badge)](https://github.com/uribo/jpmesh)
+
+------------------------------------------------------------------------
 
 Overview
 --------
@@ -15,7 +21,7 @@ In jpmesh, mesh codes and latitude and longitude coordinates are compatible with
 Installation
 ------------
 
-Fron CRAN
+From CRAN
 
 ``` r
 install.packages("jpmesh")
@@ -34,7 +40,6 @@ Usage
 
 ``` r
 library(jpmesh)
-library(dplyr, warn.conflicts = FALSE)
 ```
 
 ### Convert mesh code to coordinate and vice versa
@@ -46,32 +51,32 @@ mesh_to_coords(5133) # 80km
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.3     0.500     0.333
+#> 1       134.       34.3       0.5     0.333
 mesh_to_coords(513377) # 10km
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.6    0.0625    0.0417
+#> 1       134.       34.6    0.0625    0.0417
 mesh_to_coords(51337783) # 1km
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.7   0.00625   0.00417
+#> 1       134.       34.7   0.00625   0.00417
 mesh_to_coords(513377831) # 500m
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.7   0.00312   0.00208
+#> 1       134.       34.7   0.00312   0.00208
 mesh_to_coords(5133778312) # 250m
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.7   0.00156   0.00104
+#> 1       134.       34.7   0.00156   0.00104
 mesh_to_coords(51337783123) # 125m
 #> # A tibble: 1 x 4
 #>   lng_center lat_center lng_error lat_error
 #>        <dbl>      <dbl>     <dbl>     <dbl>
-#> 1        134       34.7  0.000781  0.000521
+#> 1       134.       34.7  0.000781  0.000521
 ```
 
 Find the mesh code within the range from latitude and longitude.
@@ -105,12 +110,12 @@ coords_to_mesh(133, 34, "80km") %>%
 
 # the value of the adjacent mesh codes
 coords_to_mesh(133, 34, "80km") %>% 
-  find_neighbor_mesh()
-#> [1] 5032 5033 5034 5132 5133 5134 5232 5233 5234
+  neighbor_mesh()
+#> [1] "5032" "5033" "5034" "5132" "5133" "5134" "5232" "5233" "5234"
 coords_to_mesh(133, 34, "500m") %>% 
-  find_neighbor_mesh()
-#> [1] 513299894 513299903 513299904 513299992 513299994 513300001 513300002
-#> [8] 513300003 513300004
+  neighbor_mesh()
+#> [1] "503277994" "503370903" "503370904" "513207092" "513207094" "513300001"
+#> [7] "513300002" "513300003" "513300004"
 ```
 
 ### Utilies
@@ -119,7 +124,7 @@ Drawing a simplified Japanese map based on the mesh code.
 
 ``` r
 library(sf)
-#> Linking to GEOS 3.6.1, GDAL 2.1.3, proj.4 4.9.3
+#> Linking to GEOS 3.5.1, GDAL 2.1.2, proj.4 4.9.3
 plot(jpnrect["abb_name"])
 ```
 
@@ -138,24 +143,26 @@ Dataset of mesh code for prefectures.
 ``` r
 set.seed(71)
 administration_mesh(code = 33, type = "prefecture") %>% 
-  dplyr::sample_n(5) %>% 
+  head() %>% 
   knitr::kable()
 ```
 
-|     | meshcode |  lng\_center|  lat\_center|  lng\_error|  lat\_error| geometry                                                                                                |
-|-----|:---------|------------:|------------:|-----------:|-----------:|:--------------------------------------------------------------------------------------------------------|
-| 33  | 523440   |     134.0625|     35.04167|      0.0625|   0.0416667| 134.00000, 134.12500, 134.12500, 134.00000, 134.00000, 35.00000, 35.00000, 35.08333, 35.08333, 35.00000 |
-| 54  | 523322   |     133.3125|     34.87500|      0.0625|   0.0416667| 133.25000, 133.37500, 133.37500, 133.25000, 133.25000, 34.83333, 34.83333, 34.91667, 34.91667, 34.83333 |
-| 32  | 523377   |     133.9375|     35.29167|      0.0625|   0.0416667| 133.87500, 134.00000, 134.00000, 133.87500, 133.87500, 35.25000, 35.25000, 35.33333, 35.33333, 35.25000 |
-| 21  | 513355   |     133.6875|     34.45833|      0.0625|   0.0416667| 133.62500, 133.75000, 133.75000, 133.62500, 133.62500, 34.41667, 34.41667, 34.50000, 34.50000, 34.41667 |
-| 30  | 523357   |     133.9375|     35.12500|      0.0625|   0.0416667| 133.87500, 134.00000, 134.00000, 133.87500, 133.87500, 35.08333, 35.08333, 35.16667, 35.16667, 35.08333 |
+| meshcode | geometry                                                                                            |
+|:---------|:----------------------------------------------------------------------------------------------------|
+| 513376   | list(c(133.75, 133.875, 133.875, 133.75, 133.75, 34.58333, 34.58333, 34.66667, 34.66667, 34.58333)) |
+| 513377   | list(c(133.875, 134, 134, 133.875, 133.875, 34.58333, 34.58333, 34.66667, 34.66667, 34.58333))      |
+| 523305   | list(c(133.625, 133.75, 133.75, 133.625, 133.625, 34.66667, 34.66667, 34.75, 34.75, 34.66667))      |
+| 523306   | list(c(133.75, 133.875, 133.875, 133.75, 133.75, 34.66667, 34.66667, 34.75, 34.75, 34.66667))       |
+| 523307   | list(c(133.875, 134, 134, 133.875, 133.875, 34.66667, 34.66667, 34.75, 34.75, 34.66667))            |
+| 523315   | list(c(133.625, 133.75, 133.75, 133.625, 133.625, 34.75, 34.75, 34.83333, 34.83333, 34.75))         |
 
 Example)
 
 ``` r
 # For leaflet
 library(leaflet)
-leaflet() %>% addTiles() %>% 
+leaflet() %>% 
+  addTiles() %>% 
   addProviderTiles("OpenStreetMap.BlackAndWhite") %>% 
   addPolygons(data = administration_mesh(code = 33101, type = "city"))
 ```
@@ -168,3 +175,8 @@ ggplot() +
 ```
 
 ![](man/figures/README-mesh_pref33_map-1.png)
+
+Code of Conduct
+---------------
+
+Please note that this project is released with a [Contributor Code of Conduct](.github/CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
