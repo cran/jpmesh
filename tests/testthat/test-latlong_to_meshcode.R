@@ -66,3 +66,54 @@ test_that("Separete to quarter mesh", {
   res <- coords_to_mesh(139.311340, 35.449011, mesh_size = "250m")
   expect_equal(res, "5339123444")
 })
+
+test_that("125m", {
+  res <- coords_to_mesh(133.9125, 34.65, mesh_size = "125m")
+  expect_equal(nchar(res), 11L)
+  expect_equal(res, "51337782222")
+})
+
+# sfg object --------------------------------------------------------------
+test_that("Input XY sfg", {
+  
+  skip_if_not_installed("sf")
+  res <- 
+    coords_to_mesh(geometry = sf::st_point(c(139.71475, 35.70078)))
+  expect_equal(res, "53394547")
+  
+  res <- 
+    coords_to_mesh(geometry = sf::st_point(c(139.71475, 35.70078)), 
+                   mesh_size = "500m")
+  expect_equal(res, "533945471")
+  
+  res <- 
+    coords_to_mesh(geometry = sf::st_point(c(130.4412895, 30.2984335)))
+  
+  expect_equal(
+    res,
+    coords_to_mesh(130.4412895, 30.2984335)
+  )
+  
+  expect_message(
+    coords_to_mesh(130.4412895, 30.2984335, 
+                   geometry = sf::st_point(c(130.4412895, 30.2984335))),
+    "only the geometry will be used"
+  )
+  
+  res <- 
+    administration_mesh(code = "08220", "city")
+  suppressWarnings(res$geometry <- 
+    sf::st_centroid(res$geometry))
+  res$meshcode_copy <- 
+    res %>% 
+    purrr::pmap_chr(., ~ coords_to_mesh(mesh_size = "1km", geometry = ..2))
+  suppressWarnings(res$geometry <- 
+                     sf::st_centroid(res$geometry))
+  res$check <- all.equal(res$meshcode, res$meshcode_copy)
+  
+  expect_equal(
+    sum(res$check == FALSE),
+    0
+  )
+  
+})

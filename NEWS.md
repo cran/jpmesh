@@ -1,3 +1,7 @@
+# jpmesh 1.1.2 (2019-03-20)
+
+- Fix devel version's test.
+
 # jpmesh 1.1.1 (2018-06-26)
 
 - Withdrawal from the tidyverse. Remove depends on stringr, tidyr and dplyr.
