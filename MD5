@@ -1,7 +1,7 @@
-822a4b879242232514119724391c45f1 *DESCRIPTION
+3ac715926a1f9e74388a76d1578ddf30 *DESCRIPTION
 321473a5d25f3b721e5ed69a40dfb304 *LICENSE
 10174c3ffc2fe9ba846d6884407402f7 *NAMESPACE
-60ee6ea81eb7d44c27883d14ffe13268 *NEWS.md
+18c54c908bea5d37034a9253373c2fb7 *NEWS.md
 5a8b45296dbfe3080aee1e16fe461950 *R/administration_mesh.R
 927ef3944c9e3577cae37fb987728b15 *R/data.R
 004c413a724347f7ffa09d22cf8c67f6 *R/export_mesh.R
@@ -21,7 +21,7 @@ b37a43367671f89e3931ba3ebcb2187e *R/util.R
 9989638d80022e82ece956c8af7e5561 *data/sf_jpmesh.rda
 29549f62a10ce5079fa8f19728f7c6d7 *inst/doc/usage.R
 8fbfc4c37f7fc09756732c4b4eadb42d *inst/doc/usage.Rmd
-89b138746369b56671496cd025cba8a4 *inst/doc/usage.html
+a22fe87bf129903334a950ba4ea04bc1 *inst/doc/usage.html
 0d46e9d435610f99ac02790c131308ca *man/administration_mesh.Rd
 8a3700f1d4a044513aad3737b6a53971 *man/coarse_gather.Rd
 aa6d0ffe25068c66063bdd0ea5941c30 *man/coords_to_mesh.Rd
@@ -49,11 +49,11 @@ b9c6f186d38cbdc9cb76a5f5aafc3bd7 *tests/testthat.R
 ea63a604342e0482a62b2ceb0d46b64f *tests/testthat/test-data.R
 bd83ded68928658a59f79109d8ec9afe *tests/testthat/test-export_mesh.R
 94b1b84b2b0878be7894234e5d5accd5 *tests/testthat/test-find.R
-5e876451f312b1de68128dc0c5ce7a3b *tests/testthat/test-fine_separate.R
+c3a40c72a7fede960f84f726ba6ad777 *tests/testthat/test-fine_separate.R
 9ee22bdd29406f720bed989a6faee8cc *tests/testthat/test-internal.R
 be9a5da728925aa5c6534b7e11c999bb *tests/testthat/test-latlong_to_meshcode.R
-01776e93faf52facd3294d8640eabd58 *tests/testthat/test-meshcode_to_latlon.R
+75d1b5dedf8a9b2a5ee536189a708124 *tests/testthat/test-meshcode_to_latlon.R
 65abafd3ad1a3edf467e9556c6da90aa *tests/testthat/test-neighborhood.R
-732aa5d5b23e0a3e1c2be04299cc2e38 *tests/testthat/test-rmesh.R
+8eca71f26ca08d1b28984b5197112904 *tests/testthat/test-rmesh.R
 3e5fb3af9bdf06e4736b1753e2d6ed1b *tests/testthat/test-utities.R
 8fbfc4c37f7fc09756732c4b4eadb42d *vignettes/usage.Rmd
