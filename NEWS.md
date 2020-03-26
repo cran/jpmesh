@@ -1,3 +1,35 @@
+# jpmesh 1.2.0 (2020-03-26)
+
+- API changes to functions that take `mesh_size` ([#35](https://github.com/uribo/jpmesh/issues/35)). It has been changed to a numeric value in km unit instead of the mesh size string.
+
+```r
+coords_to_mesh(141.3468, 43.06462, mesh_size = "10km")
+```
+
+to
+
+```r
+coords_to_mesh(141.3468, 43.06462, mesh_size = 10)
+```
+
+- Add `mesh_convert()` that mesh size can be changed freely.
+
+```r
+# Scale up
+mesh_convert("52350432", 80)
+# Scale down
+mesh_convert("52350432", 0.500)
+```
+
+## Improvement
+
+- Add image test with vdiffr ([#41](https://github.com/uribo/jpmesh/pull/41)).
+- Introducing GitHub actions.
+
+## Bug fixes and minor improvements
+
+- The bounding box value returned by `mesh_to_coords()` is incorrect ([#31](https://github.com/uribo/jpmesh/issues/31))
+
 # jpmesh 1.1.3 (2019-05-09)
 
 - Fix R version test.
@@ -12,7 +44,7 @@
 - Follow up the units package update.
 - Fixed overlapped probrem ([#20](https://github.com/uribo/jpmesh/issues/20))
 
-### New features
+## New features
 
 - `coarse_gather()`... Scale-down function [#22](https://github.com/uribo/jpmesh/issues/22)
 

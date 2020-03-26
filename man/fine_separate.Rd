@@ -7,20 +7,22 @@
 fine_separate(meshcode = NULL, ...)
 }
 \arguments{
-\item{meshcode}{\code{integer}. mesh code}
+\item{meshcode}{\code{character}. mesh code}
 
 \item{...}{other parameters for paste}
 }
 \value{
 character vector
+
+meshcode as \code{character}
 }
 \description{
 Return contains fine mesh codes
 }
 \examples{
-fine_separate(5235)
-fine_separate(523504)
-fine_separate(52350432)
-fine_separate(523504321)
-fine_separate(5235043211)
+fine_separate("5235")
+fine_separate("523504")
+fine_separate("52350432")
+fine_separate("523504321")
+fine_separate("5235043211")
 }

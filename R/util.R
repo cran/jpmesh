@@ -1,70 +1,62 @@
 #' @title Check include mesh areas
-#' 
-#' @description It roughly judges whether the given coordinates are within the mesh area.
+#' @description It roughly judges whether the given coordinates are within
+#' the mesh area.
 #' @inheritParams coords_to_mesh
 #' @param ... other parameters
-#' @examples 
-#' \dontrun{
+#' @examples
 #' eval_jp_boundary(139.71471056, 35.70128943)
-#' }
 #' @aliases eval_jp_boundary
 #' @export
-eval_jp_boundary <- function(longitude = NULL, 
-                             latitude = NULL,
-                             ...) {
-  
+eval_jp_boundary <- function(longitude = NULL, latitude = NULL, ...) {
   ifelse(
-    ifelse(latitude >= 20.0 & latitude <= 46.0, TRUE, FALSE) &   
+    ifelse(latitude >= 20.0 & latitude <= 46.0, TRUE, FALSE) &
       ifelse(longitude >= 120.0 & longitude <= 154.0, TRUE, FALSE),
     TRUE,
     FALSE
   )
-  
 }
 
-
 mesh_to_poly <- function(lng_center, lat_center, lng_error, lat_error, ...) {
-  sf::st_polygon(list(rbind(c(lng_center - lng_error, 
-                              lat_center - lat_error), 
-                            c(lng_center + lng_error, 
-                              lat_center - lat_error), 
-                            c(lng_center +  lng_error, 
-                              lat_center + lat_error), 
-                            c(lng_center - lng_error, 
-                              lat_center + lat_error), 
-                            c(lng_center - lng_error, 
-                              lat_center - lat_error)))) %>% 
-    sf::st_sfc(crs = 4326) %>% 
+  sf::st_polygon(list(rbind(c(lng_center - lng_error,
+                              lat_center - lat_error),
+                            c(lng_center + lng_error,
+                              lat_center - lat_error),
+                            c(lng_center +  lng_error,
+                              lat_center + lat_error),
+                            c(lng_center - lng_error,
+                              lat_center + lat_error),
+                            c(lng_center - lng_error,
+                              lat_center - lat_error)))) %>%
+    sf::st_sfc(crs = 4326) %>%
     sf::st_as_text()
 }
 
-mesh_size <- function(mesh) {
-  
-  mesh_length <- as.character(nchar(mesh))
-  
-  res <- switch (mesh_length,
-          "4" = df_mesh_size_unit$mesh_size[1],
-          "6" = df_mesh_size_unit$mesh_size[2],
-          "8" = df_mesh_size_unit$mesh_size[3],
-          "9" = df_mesh_size_unit$mesh_size[4],
-          "10" = df_mesh_size_unit$mesh_size[5],
-          "11" = df_mesh_size_unit$mesh_size[6]
-  )
-  
-  if (is.null(res))
+#' @title Identifer to mesh size
+#' @description Returns a unit object of mesh size for the given number.
+#' @inheritParams mesh_to_coords
+#' @export
+mesh_size <- function(meshcode) {
+  mesh_length <- as.character(nchar(meshcode))
+  res <- switch(mesh_length,
+          "4" = mesh_units[1],
+          "6" = mesh_units[2],
+          "7" = mesh_units[3],
+          "8" = mesh_units[4],
+          "9" = mesh_units[5],
+          "10" = mesh_units[6],
+          "11" = mesh_units[7])
+  if (rlang::is_null(res))
     res <- units::as_units(NA_integer_, "km")
-  
   return(res)
 }
 
-df_mesh_size_unit <- 
-  tibble::data_frame(
-    mesh_length = c(4L, 6L, 8L, 9L, 10L, 11L),
-    mesh_size = c(
-      units::set_units(c(80, 10, 1), "km"),
-      units::set_units(c(500, 250, 125), "m")
-  )
-)
+mesh_units <- units::as_units(c(80.000, 10.000, 5.000,
+                                1.000, 0.500, 0.250, 0.125), "km") # nolint
+
+df_mesh_size_unit <-
+  tibble::tibble(
+    mesh_length = c(4L, 6L, 7L, 8L, 9L, 10L, 11L),
+    mesh_size = mesh_units)
 
 meshcode_set_80km <- as.character(c(3036,
   3622, 3623, 3624, 3631, 3641, 3653,
@@ -105,85 +97,69 @@ meshcode_set_10km <- meshcode_set_80km %>%
   purrr::map(fine_separate) %>%
   purrr::flatten_chr()
 
+meshcode_set_5km <-
+  meshcode_set_10km %>%
+  purrr::map(~ paste0(.x, seq.int(1, 4))) %>%
+  purrr::flatten_chr()
+
 meshcode_set_1km <- meshcode_set_10km %>%
   purrr::map(fine_separate) %>%
   purrr::flatten_chr()
 
-#' Export meshcode vectors ranges 80km to 1km.
-#' 
-#' Unique 176 meshcodes. 
+#' @title Export meshcode vectors ranges 80km to 1km.
+#' @description Unique 176 meshcodes.
 #' The output code may contain values not found in the actual mesh code.
-#' 
 #' @param mesh_size Export mesh size from 80km to 1km.
-#' @examples 
-#' meshcode_set(mesh_size = "80km")
+#' @examples
+#' meshcode_set(mesh_size = 80)
 #' @export
-meshcode_set <- function(mesh_size = c("80km", "10km", "1km")) {
-  mesh_size <- match.arg(mesh_size)
-  get(sprintf("meshcode_set_%s", mesh_size), envir = asNamespace("jpmesh"))
+meshcode_set <- function(mesh_size = c(80, 10, 5, 1)) {
+  get(sprintf("meshcode_set_%skm", mesh_size), envir = asNamespace("jpmesh")) # nolint
 }
 
-#' Cutoff mesh of outside the area
-#' 
+#' @title Cutoff mesh of outside the area
 #' @inheritParams mesh_to_coords
 cut_off <- function(meshcode) {
-  
   mesh_80km <- substr(meshcode, 1, 4)
-  
-  res <- meshcode[mesh_80km %in% c(meshcode_set("80km"))]
+  res <- meshcode[mesh_80km %in% c(meshcode_set(80))] # nolint
   if (length(res) < length(meshcode)) {
     rlang::warn("Some neighborhood meshes are outside the area.")
   }
-
-  res <- res %>% sort() %>% 
-    as.character()
-  
+  res <- as.character(sort(res))
   return(res)
 }
 
 validate_neighbor_mesh <- function(meshcode) {
-  
-  df_bbox <- 
-    tibble::tibble("mesh" = find_neighbor_mesh(meshcode))
-  
-  df_bbox$geometry <- 
-    purrr::map_chr(df_bbox$mesh,
-                   ~ export_mesh(mesh = .x) %>% 
-                     sf::st_as_text()) %>% 
-    sf::st_as_sfc(crs = 4326)
-
-  df_bbox <- 
-    df_bbox %>% 
-    sf::st_sf() %>% 
-    sf::st_union() %>% 
+  df_bbox <-
+    find_neighbor_mesh(meshcode) %>%
+    export_meshes()
+  df_bbox <-
+    df_bbox %>%
+    sf::st_sf() %>%
+    sf::st_union() %>%
     sf::st_bbox()
-  
   tibble::tibble(
     xlim = as.numeric(df_bbox[3] - df_bbox[1]),
     ylim = as.numeric(df_bbox[4] - df_bbox[2]))
-  
 }
 
 bind_meshpolys <- function(meshcode) {
-  meshcode %>% 
-    purrr::map(fine_separate) %>% 
-    purrr::reduce(c) %>% 
+  meshcode %>%
+    purrr::map(fine_separate) %>%
+    purrr::reduce(c) %>%
     unique() %>%
     export_meshes()
 }
 
 code_reform <- function(jis_code) {
   . <- NULL
-  
   checked <-
     jis_code %>%
     purrr::map(nchar) %>%
     purrr::keep(~ .x %in% c(1, 2, 5)) %>%
     length()
-  
   if (length(jis_code) != checked)
     rlang::abort("Input jis-code must to 2 or 5 digits.")
-  
   jis_code %>%
     purrr::map(as.numeric) %>%
     purrr::map_if(.p = nchar(.) %in% c(1, 2), ~ sprintf("%02d", .x)) %>%

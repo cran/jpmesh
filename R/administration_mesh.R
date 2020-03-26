@@ -1,59 +1,53 @@
 #' Extract administration mesh
-#' 
+#'
 #' @param code administration code
-#' @param type administration type. Should be one of "prefecture" or "city".
-#' @examples 
+#' @inheritParams mesh_convert
+#' @examples
 #' \dontrun{
-#' administration_mesh(code = c(35201), type = "city")
-#' administration_mesh(code = "08220", type = "city")
-#' administration_mesh(code = c("08220", "08221"), type = "city")
-#' administration_mesh(code = 35, type = "prefecture")
-#' administration_mesh(code = c(33, 34), type = "prefecture")
+#' administration_mesh(code = "35201", to_mesh_size = 1)
+#' administration_mesh(code = "08220", to_mesh_size)
+#' administration_mesh(code = c("08220", "08221"), to_mesh_size = 10)
+#' administration_mesh(code = "35", to_mesh_size = 80)
+#' administration_mesh(code = c("33", "34"), to_mesh_size = 80)
 #' }
 #' @name administration_mesh
 #' @export
-administration_mesh <- function(code, type = c("city", "prefecture")) {
-
-  rlang::arg_match(type)
-  
-  . <- city_code <- NULL
-  
-  checked_code <- 
+administration_mesh <- function(code, to_mesh_size) {
+  to_mesh_size_chr <-
+    as.character(to_mesh_size)
+  rlang::arg_match(to_mesh_size_chr,
+                   c("80", "10", "1"))
+  to_mesh_size <-
+    units::as_units(as.numeric(to_mesh_size), "km")
+  checked_code <-
     code_reform(code)
-  
-  mis_match <- 
-    checked_code[!checked_code %in% c(sprintf("%02d", seq(1, 47, by = 1)), 
+  mis_match <-
+    checked_code[!checked_code %in% c(sprintf("%02d", seq_len(47)),
                                       unique(df_city_mesh$city_code))]
-  
-  if (!identical(mis_match, character(0))) {
-    rlang::inform(
-      paste(length(mis_match), "matching code were not found."))
-    
-    checked_code <- 
-      checked_code[!checked_code %in% mis_match]
+  if (rlang::is_false(identical(mis_match, character(0))))
+    rlang::inform(paste(length(mis_match), "matching code were not found."))
+  checked_code <- checked_code[!checked_code %in% mis_match]
+  if (length(unique(nchar(checked_code))) > 1)
+    rlang::inform("The city and the prefecture including it was givend.\nWill return prefecture's meshes.") # nolint
+  res_meshes <-
+    purrr::map(checked_code,
+               ~ subset(df_city_mesh,
+                        grepl(paste0("^(", .x, ")"),
+                              city_code)) %>%
+                 purrr::pluck("meshcode")) %>%
+    purrr::flatten_chr() %>%
+    unique()
+  if (to_mesh_size == units::as_units(80, "km")) {
+    res_meshes <-
+      res_meshes %>%
+      substr(1, 4)
+  } else if (to_mesh_size == units::as_units(10, "km")) {
+    res_meshes <-
+      res_meshes %>%
+      substr(1, 6)
   }
-
-  if (length(checked_code %>% 
-             purrr::map_chr(~ substr(.x, 1,2)) %>% 
-             unique()) < length(checked_code))
-    rlang::inform("The city and the prefecture including it was givend.\nWill return prefecture meshes.") # nolint
-  
-  if (type == "prefecture") {
-    df_city_mesh$meshcode <- 
-      substr(df_city_mesh$meshcode, 1, 6)
-  }
-  
-  checked_code %>% 
-    purrr::map(
-      ~ subset(df_city_mesh, 
-               grepl(paste0("^(", .x, ")"), 
-                     city_code)) %>% 
-        .$meshcode      
-    ) %>% 
-    purrr::flatten_chr() %>% 
-    unique() %>% 
-    purrr::map(
-      ~ export_meshes(.x)  
-    ) %>% 
+  res_meshes %>%
+    unique() %>%
+    purrr::map(~ export_meshes(.x)) %>%
     purrr::reduce(rbind)
 }

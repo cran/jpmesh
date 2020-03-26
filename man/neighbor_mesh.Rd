@@ -2,12 +2,15 @@
 % Please edit documentation in R/find_neighbor_mesh.R
 \name{neighbor_mesh}
 \alias{neighbor_mesh}
+\alias{find_neighbor_mesh}
 \title{Find out neighborhood meshes collection}
 \usage{
 neighbor_mesh(meshcode, contains = TRUE)
+
+find_neighbor_mesh(meshcode = NULL, contains = TRUE)
 }
 \arguments{
-\item{meshcode}{\code{integer}. mesh code}
+\item{meshcode}{\code{character}. mesh code}
 
 \item{contains}{logical. contains input meshcode (default \code{TRUE})}
 }
