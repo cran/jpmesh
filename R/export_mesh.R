@@ -3,12 +3,12 @@
 #' @inheritParams mesh_to_coords
 #' @importFrom purrr pmap_chr
 #' @importFrom sf st_as_sfc st_polygon st_sfc
-#' @return sfc object
+#' @return [sfc][sf::st_as_sfc] object
 #' @examples
 #' export_mesh("6441427712")
 #' @export
 export_mesh <- function(meshcode) {
-  if (is.mesh(meshcode))
+  if (is_meshcode(meshcode)) {
     if (mesh_size(meshcode) <= units::as_units(0.5, "km")) {
       res <- export_mesh(substr(meshcode, 1, nchar(meshcode) - 1)) %>% # nolint 
         sf::st_make_grid(n = c(2, 2))
@@ -19,6 +19,9 @@ export_mesh <- function(meshcode) {
                         mesh_to_poly),
         crs = 4326)
     }
+  } else {
+    res <- NULL
+  }
   return(res)
 }
 
@@ -35,18 +38,19 @@ export_mesh <- function(meshcode) {
 #' @export
 #' @name export_meshes
 export_meshes <- function(meshcode) {
-  df_meshes <- tibble::tibble("meshcode" = as.character(meshcode))
+  df_meshes <-
+    tibble::tibble("meshcode" = as.character(meshcode))
   sf::st_sf(df_meshes,
             geometry = purrr::map_chr(df_meshes$meshcode,
                                         ~ export_mesh(meshcode = .x) %>%
                                           sf::st_as_text()) %>%
               sf::st_as_sfc(),
             crs = 4326) %>%
-    tibble::new_tibble(subclass = "sf", nrow = nrow(df_meshes))
+    tibble::new_tibble(class = "sf", nrow = nrow(df_meshes))
 }
 
 #' @name export_meshes
-#' @param data data frmae
+#' @param data data.frame
 #' @param mesh_var unquoted expressions for meshcode variable.
 #' @export
 #' @examples
@@ -55,7 +59,8 @@ export_meshes <- function(meshcode) {
 #'             stringsAsFactors = FALSE)
 #' meshcode_sf(d, meshcode)
 meshcode_sf <- function(data, mesh_var) {
-  meshcode <- rlang::quo_name(rlang::enquo(mesh_var))
+  meshcode <-
+    rlang::quo_name(rlang::enquo(mesh_var))
   sf::st_sf(
     data,
     geometry = data %>%
@@ -64,5 +69,5 @@ meshcode_sf <- function(data, mesh_var) {
       sf::st_geometry(),
     crs = 4326
   ) %>%
-    tibble::new_tibble(nrow = nrow(data), subclass = "sf")
+    tibble::new_tibble(nrow = nrow(data), class = "sf")
 }

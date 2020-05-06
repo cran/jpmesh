@@ -1,3 +1,8 @@
+# jpmesh 1.2.1 (2020-05-06)
+
+- Meshcode evaluation is now more stringent.
+    - Fixed a problem where a non-existent mesh code would return an incorrect value when given as input ([#45](https://github.com/uribo/jpmesh/issues/45)).
+
 # jpmesh 1.2.0 (2020-03-26)
 
 - API changes to functions that take `mesh_size` ([#35](https://github.com/uribo/jpmesh/issues/35)). It has been changed to a numeric value in km unit instead of the mesh size string.
@@ -20,6 +25,8 @@ mesh_convert("52350432", 80)
 # Scale down
 mesh_convert("52350432", 0.500)
 ```
+
+- `meshcode_sf()` export data.frame to sf which include meshcode variable.
 
 ## Improvement
 
@@ -58,7 +65,7 @@ mesh_convert("52350432", 0.500)
 ## New features
 
 - `is_meshcode()`, `is_corner()`... Predict meshcode format and positions for utility and certain.
-- `rmesh()`... 
+- `rmesh()`... Generate random sample meshcode.
 - Rename `find_neighbor_mesh()` to `neighbor_mesh()` and separate features (not export functions).
 - `export_meshes()`
 
