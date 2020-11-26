@@ -4,17 +4,17 @@
 \alias{fine_separate}
 \title{Separate more fine mesh order}
 \usage{
-fine_separate(meshcode = NULL, ...)
+fine_separate(meshcode = NULL, .type = "standard", ...)
 }
 \arguments{
 \item{meshcode}{\code{character}. mesh code}
 
-\item{...}{other parameters for paste}
+\item{.type}{Specify the \code{subdivision} if you want to get a 100m mesh.}
+
+\item{...}{other parameters for \link[base:paste]{paste}}
 }
 \value{
-character vector
-
-meshcode as \code{character}
+\link{meshcode}
 }
 \description{
 Return contains fine mesh codes
@@ -25,4 +25,6 @@ fine_separate("523504")
 fine_separate("52350432")
 fine_separate("523504321")
 fine_separate("5235043211")
+# to 100m mesh code
+fine_separate("64414315", .type = "subdivision")
 }

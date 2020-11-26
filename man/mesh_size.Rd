@@ -4,11 +4,16 @@
 \alias{mesh_size}
 \title{Identifer to mesh size}
 \usage{
-mesh_size(meshcode)
+mesh_size(meshcode, .type = "standard")
 }
 \arguments{
 \item{meshcode}{\code{character}. mesh code}
+
+\item{.type}{Specify the \code{subdivision} if you want to get a 100m mesh.}
 }
 \description{
 Returns a unit object of mesh size for the given number.
+}
+\examples{
+mesh_size("6740")
 }

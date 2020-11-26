@@ -14,23 +14,28 @@
 #' coords_to_mesh(141.3468, 43.06462, mesh_size = 1)
 #' coords_to_mesh(139.6917, 35.68949, mesh_size = 0.250)
 #' coords_to_mesh(139.71475, 35.70078)
+#' coords_to_mesh(c(141.3468, 139.71475), 
+#'                c(43.06462, 35.70078), 
+#'                mesh_size = c(1, 10))
 #' # Using sf (point as sfg object)
 #' library(sf)
 #' coords_to_mesh(geometry = st_point(c(139.71475, 35.70078)))
 #' coords_to_mesh(geometry = st_point(c(130.4412895, 30.2984335)))
 #' @export
 coords_to_mesh <- function(longitude, latitude, mesh_size = 1, geometry = NULL, ...) { # nolint
-  to_mesh_size <- units::as_units(mesh_size, "km")
-  if (rlang::is_true(identical(which(to_mesh_size %in% mesh_units), integer(0)))) # nolint
+  to_mesh_size <- 
+    units::as_units(mesh_size, "km")
+  if (rlang::is_true(identical(which(to_mesh_size %in% mesh_units[-8]), integer(0)))) # nolint
     rlang::abort(
       paste0("`mesh_size` should be one of: ",
              paste(
-               units::drop_units(mesh_units)[-6],
+               units::drop_units(mesh_units)[-seq.int(7, 8)],
                collapse = ", "),
              " or ",
-             paste(units::drop_units(mesh_units)[6])))
+             paste(units::drop_units(mesh_units)[7])))
   if (rlang::is_false(is.null(geometry))) {
-    geometry <- sf::st_sfc(geometry)
+    geometry <- 
+      sf::st_sfc(geometry)
     coords <-
       lapply(geometry, function(x) {
         if (sf::st_is(x, "POINT"))
@@ -52,23 +57,30 @@ coords_to_mesh <- function(longitude, latitude, mesh_size = 1, geometry = NULL, 
     longitude <- rlang::quo_squash(longitude)
     latitude <- rlang::quo_squash(latitude)
   }
-  purrr::pmap_chr(
+  purrr::pmap(
     list(longitude = longitude,
          latitude = latitude,
          to_mesh_size = to_mesh_size),
-    ~ .coord2mesh(..1, ..2, ..3))
+    ~ .coord2mesh(..1, ..2, ..3)) %>% 
+    purrr::reduce(c)
 }
 
 .coord2mesh <- function(longitude, latitude, to_mesh_size) {
+  .x <- .y <- NULL
   coords_evalated <-
     purrr::map2_lgl(longitude,
                     latitude,
                     ~ eval_jp_boundary(.x, .y))
+  if (coords_evalated == FALSE) {
+    rlang::warn("Longitude / Latitude values is out of range.")
+    return(NA_character_)
+  }
   if (coords_evalated == TRUE) {
     code12 <- (latitude * 60) %/% 40
     code34 <- as.integer(longitude - 100)
-    check_80km_ares <- paste0(code12, code34) %>%
-      match(meshcode_set(mesh_size = 80.000)) %>% # nolint
+    check_80km_ares <- 
+      paste0(code12, code34) %>%
+      match(meshcode_80km_num) %>% # nolint
       any()
     if (rlang::is_true(check_80km_ares)) {
       code_a <- (latitude * 60) %% 40
@@ -120,13 +132,10 @@ coords_to_mesh <- function(longitude, latitude, mesh_size = 1, geometry = NULL, 
         } else if (to_mesh_size == units::as_units(0.125, "km")) {
           meshcode
         }
-      return(meshcode)
+      meshcode(meshcode)
     } else if (is.na(check_80km_ares)) {
       rlang::warn("Longitude / Latitude values is out of range.")
       return(NA_character_)
     }
-  } else if (coords_evalated == FALSE) {
-    rlang::warn("Longitude / Latitude values is out of range.")
-    return(NA_character_)
   }
 }

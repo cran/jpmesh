@@ -1,3 +1,11 @@
+# jpmesh 2.0.0 (2020-11-25)
+
+- To introduced a new `meshcode` class. This is one of the classes of S3. The mesh code values returned by the package are implemented in the `meshcode` class. Also, `meshcode()` creates an object of `meshcode` class of arbitrary size [#49](https://github.com/uribo/jpmesh/pull/49).
+    - `is_meshcode()`, `as_meshcode()`
+- Update administration mesh code data using at `administration_mesh()`
+- Activate a memoise some functions for efficiency [#50](https://github.com/uribo/jpmesh/pull/50).
+- Support 100m mesh code as `subdiv_meshcode` class [#51](https://github.com/uribo/jpmesh/pull/51).
+
 # jpmesh 1.2.1 (2020-05-06)
 
 - Meshcode evaluation is now more stringent.

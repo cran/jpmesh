@@ -12,34 +12,96 @@
 
 <meta name="author" content="Shinya Uryu" />
 
-<meta name="date" content="2020-05-06" />
+<meta name="date" content="2020-11-25" />
 
 <title>How to use mesh cord in R</title>
 
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+<style type="text/css">
+a.anchor-section {margin-left: 10px; visibility: hidden; color: inherit;}
+a.anchor-section::before {content: '#';}
+.hasAnchor:hover a.anchor-section {visibility: visible;}
+</style>
+<script>// Anchor sections v1.0 written by Atsushi Yasumoto on Oct 3rd, 2020.
+document.addEventListener('DOMContentLoaded', function() {
+  // Do nothing if AnchorJS is used
+  if (typeof window.anchors === 'object' && anchors.hasOwnProperty('hasAnchorJSLink')) {
+    return;
+  }
+
+  const h = document.querySelectorAll('h1, h2, h3, h4, h5, h6');
+
+  // Do nothing if sections are already anchored
+  if (Array.from(h).some(x => x.classList.contains('hasAnchor'))) {
+    return null;
+  }
+
+  // Use section id when pandoc runs with --section-divs
+  const section_id = function(x) {
+    return ((x.classList.contains('section') || (x.tagName === 'SECTION'))
+            ? x.id : '');
+  };
+
+  // Add anchors
+  h.forEach(function(x) {
+    const id = x.id || section_id(x.parentElement);
+    if (id === '') {
+      return null;
+    }
+    let anchor = document.createElement('a');
+    anchor.href = '#' + id;
+    anchor.classList = ['anchor-section'];
+    x.classList.add('hasAnchor');
+    x.appendChild(anchor);
+  });
+});
+</script>
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
 
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css" data-origin="pandoc">
-a.sourceLine { display: inline-block; line-height: 1.25; }
-a.sourceLine { pointer-events: none; color: inherit; text-decoration: inherit; }
-a.sourceLine:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
 div.sourceCode { margin: 1em 0; }
 pre.sourceCode { margin: 0; }
 @media screen {
 div.sourceCode { overflow: auto; }
 }
 @media print {
-code.sourceCode { white-space: pre-wrap; }
-a.sourceLine { text-indent: -1em; padding-left: 1em; }
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
 }
-pre.numberSource a.sourceLine
-  { position: relative; left: -4em; }
-pre.numberSource a.sourceLine::before
-  { content: attr(data-line-number);
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
     position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; pointer-events: all; display: inline-block;
+    border: none; display: inline-block;
     -webkit-touch-callout: none; -webkit-user-select: none;
     -khtml-user-select: none; -moz-user-select: none;
     -ms-user-select: none; user-select: none;
@@ -48,9 +110,9 @@ pre.numberSource a.sourceLine::before
   }
 pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
 div.sourceCode
-  {  }
+  {   }
 @media screen {
-a.sourceLine::before { text-decoration: underline; }
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
 }
 code span.al { color: #ff0000; font-weight: bold; } /* Alert */
 code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
@@ -301,121 +363,84 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <h1 class="title toc-ignore">How to use mesh cord in R</h1>
 <h4 class="author">Shinya Uryu</h4>
-<h4 class="date">2020-05-06</h4>
+<h4 class="date">2020-11-25</h4>
 
 
 
 <div id="概要" class="section level2">
 <h2>概要</h2>
-<p><strong>jpmesh</strong>パッケージは、日本国内で利用される「地域メッシュ（メッシュコード）」をRから容易に利用可能にするパッケージです。地域メッシュとは、日本国土を緯度・経度により方形の小地域区画に細分することで、同一の基準による統計調査などの結果を得ることが可能となります。80kmから125mまでのメッシュコードに対応し、メッシュコードと緯度経度座標との相互変換を行います。</p>
+<p><strong>jpmesh</strong>パッケージは、日本国内で利用される「地域メッシュ（メッシュコード）」をRから容易に利用可能にするパッケージです。地域メッシュとは、日本国土を緯度・経度により方形の小地域区画に細分することで、同一の基準による統計調査などの結果を得ることが可能となります。80kmから100mまでのメッシュコードに対応し、メッシュコードと緯度経度座標との相互変換を行います。</p>
 <p><strong>jpmesh</strong>の主な機能として、「緯度経度からの地域メッシュへの変換」、「地域メッシュからの緯度経度の取得」、「都道府県単位やleaflet上へのマッピング」があります。なお地域メッシュと緯度経度の変換の基礎は<a href="http://takenaka-akio.org/etc/meshcode/r_code.html">竹中明夫さんのRコード</a>が基礎となっています。ここではその使い方を紹介します。</p>
 <p>パッケージをインストールしたら環境内で利用可能にするため、読み込みを行いましょう。また、このサンプルページで用いるパッケージも同時に読み込むようにしておきます。</p>
-<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb1-1" data-line-number="1"><span class="kw">library</span>(jpmesh)</a>
-<a class="sourceLine" id="cb1-2" data-line-number="2"><span class="kw">library</span>(sf)</a>
-<a class="sourceLine" id="cb1-3" data-line-number="3"><span class="kw">library</span>(purrr)</a></code></pre></div>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(jpmesh)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(purrr)</span></code></pre></div>
 <div id="緯度経度と地域メッシュの相互変換" class="section level4">
 <h4>緯度経度と地域メッシュの相互変換</h4>
 <p><code>mesh_to_coords()</code>関数を利用し、緯度経度から地域メッシュを得ることができます。この関数では11桁までの細分地域メッシュに対応し、メッシュの中心座標とメッシュの範囲を示す値を返します。</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb2-1" data-line-number="1"><span class="kw">mesh_to_coords</span>(<span class="dv">5133</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 1 x 4
-##   lng_center lat_center lng_error lat_error
-##        &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-## 1       134.       34.3       0.5     0.333</code></pre>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb4-1" data-line-number="1"><span class="kw">mesh_to_coords</span>(<span class="dv">513377</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 1 x 4
-##   lng_center lat_center lng_error lat_error
-##        &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-## 1       134.       34.6    0.0625    0.0417</code></pre>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb6-1" data-line-number="1"><span class="kw">mesh_to_coords</span>(<span class="dv">51337783</span>)</a></code></pre></div>
-<pre><code>## # A tibble: 1 x 4
-##   lng_center lat_center lng_error lat_error
-##        &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-## 1       134.       34.7   0.00625   0.00417</code></pre>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mesh_to_coords</span>(<span class="dv">5133</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 5
+##     meshcode lng_center lat_center lng_error lat_error
+##   &lt;meshcode&gt;      &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1       5133       134.       34.3       0.5     0.333</code></pre>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mesh_to_coords</span>(<span class="dv">513377</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 5
+##     meshcode lng_center lat_center lng_error lat_error
+##   &lt;meshcode&gt;      &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1     513377       134.       34.6    0.0625    0.0417</code></pre>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">mesh_to_coords</span>(<span class="dv">51337783</span>)</span></code></pre></div>
+<pre><code>## # A tibble: 1 x 5
+##     meshcode lng_center lat_center lng_error lat_error
+##   &lt;meshcode&gt;      &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+## 1   51337783       134.       34.7   0.00625   0.00417</code></pre>
 <p>得られるメッシュの領域データを使ってメッシュのポリゴンを作成する例です。</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb8-1" data-line-number="1"><span class="kw">export_mesh</span>(<span class="dv">5133778311</span>)</a></code></pre></div>
-<pre><code>## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar</code></pre>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">export_mesh</span>(<span class="dv">5133778311</span>)</span></code></pre></div>
 <pre><code>## Geometry set for 1 feature 
 ## geometry type:  POLYGON
 ## dimension:      XY
 ## bbox:           xmin: 133.9125 ymin: 34.65 xmax: 133.9156 ymax: 34.65208
-## CRS:            EPSG:4326</code></pre>
+## geographic CRS: WGS 84</code></pre>
 <pre><code>## POLYGON ((133.9125 34.65, 133.9156 34.65, 133.9...</code></pre>
 <p>緯度経度から地域メッシュを得ることもできます。これには<code>coords_to_mesh()</code>を利用します。引数に緯度と経度を与え、取得対象のメッシュコードの大きさを指定します。メッシュコードの大きさの初期値は標準地域メッシュ、すなわち1kmメッシュです。</p>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb12-1" data-line-number="1"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;51330000&quot;</code></pre>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb14-1" data-line-number="1"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="dt">mesh_size =</span> <span class="dv">80</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;5133&quot;</code></pre>
-<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb16-1" data-line-number="1"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="dt">mesh_size =</span> <span class="fl">0.125</span>)</a></code></pre></div>
-<pre><code>## [1] &quot;51330000111&quot;</code></pre>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>)</span></code></pre></div>
+<pre><code>## &lt;meshcode[1]&gt;
+## [1] 51330000</code></pre>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="at">mesh_size =</span> <span class="dv">80</span>)</span></code></pre></div>
+<pre><code>## &lt;meshcode[1]&gt;
+## [1] 5133</code></pre>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="at">mesh_size =</span> <span class="fl">0.125</span>)</span></code></pre></div>
+<pre><code>## &lt;meshcode[1]&gt;
+## [1] 51330000111</code></pre>
 <p>また対象の地域メッシュ内に含まれる緯度経度からスケールダウンした地域メッシュや、隣接するメッシュコードを得ることができます。</p>
-<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb18-1" data-line-number="1"><span class="co"># 80kmメッシュに含まれる10kmメッシュを返します</span></a>
-<a class="sourceLine" id="cb18-2" data-line-number="2"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="dt">mesh_size =</span> <span class="dv">80</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb18-3" data-line-number="3"><span class="st">  </span><span class="kw">fine_separate</span>()</a></code></pre></div>
-<pre><code>##  [1] &quot;513300&quot; &quot;513301&quot; &quot;513302&quot; &quot;513303&quot; &quot;513304&quot; &quot;513305&quot; &quot;513306&quot; &quot;513307&quot;
-##  [9] &quot;513310&quot; &quot;513311&quot; &quot;513312&quot; &quot;513313&quot; &quot;513314&quot; &quot;513315&quot; &quot;513316&quot; &quot;513317&quot;
-## [17] &quot;513320&quot; &quot;513321&quot; &quot;513322&quot; &quot;513323&quot; &quot;513324&quot; &quot;513325&quot; &quot;513326&quot; &quot;513327&quot;
-## [25] &quot;513330&quot; &quot;513331&quot; &quot;513332&quot; &quot;513333&quot; &quot;513334&quot; &quot;513335&quot; &quot;513336&quot; &quot;513337&quot;
-## [33] &quot;513340&quot; &quot;513341&quot; &quot;513342&quot; &quot;513343&quot; &quot;513344&quot; &quot;513345&quot; &quot;513346&quot; &quot;513347&quot;
-## [41] &quot;513350&quot; &quot;513351&quot; &quot;513352&quot; &quot;513353&quot; &quot;513354&quot; &quot;513355&quot; &quot;513356&quot; &quot;513357&quot;
-## [49] &quot;513360&quot; &quot;513361&quot; &quot;513362&quot; &quot;513363&quot; &quot;513364&quot; &quot;513365&quot; &quot;513366&quot; &quot;513367&quot;
-## [57] &quot;513370&quot; &quot;513371&quot; &quot;513372&quot; &quot;513373&quot; &quot;513374&quot; &quot;513375&quot; &quot;513376&quot; &quot;513377&quot;</code></pre>
-<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb20-1" data-line-number="1"><span class="co"># 隣接するメッシュコードを同じスケールで返します</span></a>
-<a class="sourceLine" id="cb20-2" data-line-number="2"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="dt">mesh_size =</span> <span class="dv">80</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb20-3" data-line-number="3"><span class="st">  </span><span class="kw">neighbor_mesh</span>()</a></code></pre></div>
-<pre><code>## [1] &quot;5032&quot; &quot;5033&quot; &quot;5034&quot; &quot;5132&quot; &quot;5133&quot; &quot;5134&quot; &quot;5232&quot; &quot;5233&quot; &quot;5234&quot;</code></pre>
-<div class="sourceCode" id="cb22"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb22-1" data-line-number="1"><span class="kw">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="fl">0.5</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb22-2" data-line-number="2"><span class="st">  </span><span class="kw">neighbor_mesh</span>()</a></code></pre></div>
-<pre><code>## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar
-## although coordinates are longitude/latitude, st_relate_pattern assumes that they are planar</code></pre>
-<pre><code>## [1] &quot;503277994&quot; &quot;503370903&quot; &quot;503370904&quot; &quot;513207092&quot; &quot;513207094&quot; &quot;513300001&quot;
-## [7] &quot;513300002&quot; &quot;513300003&quot; &quot;513300004&quot;</code></pre>
+<div class="sourceCode" id="cb17"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 80kmメッシュに含まれる10kmメッシュを返します</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="at">mesh_size =</span> <span class="dv">80</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fine_separate</span>()</span></code></pre></div>
+<pre><code>## &lt;meshcode[64]&gt;
+##  [1] 513300 513301 513302 513303 513304 513305 513306 513307 513310 513311
+## [11] 513312 513313 513314 513315 513316 513317 513320 513321 513322 513323
+## [21] 513324 513325 513326 513327 513330 513331 513332 513333 513334 513335
+## [31] 513336 513337 513340 513341 513342 513343 513344 513345 513346 513347
+## [41] 513350 513351 513352 513353 513354 513355 513356 513357 513360 513361
+## [51] 513362 513363 513364 513365 513366 513367 513370 513371 513372 513373
+## [61] 513374 513375 513376 513377</code></pre>
+<div class="sourceCode" id="cb19"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="co"># 隣接するメッシュコードを同じスケールで返します</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="at">mesh_size =</span> <span class="dv">80</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">neighbor_mesh</span>()</span></code></pre></div>
+<pre><code>## &lt;meshcode[9]&gt;
+## [1] 5032 5033 5034 5132 5133 5134 5232 5233 5234</code></pre>
+<div class="sourceCode" id="cb21"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">coords_to_mesh</span>(<span class="dv">133</span>, <span class="dv">34</span>, <span class="fl">0.5</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">neighbor_mesh</span>()</span></code></pre></div>
+<pre><code>## &lt;meshcode[9]&gt;
+## [1] 503277994 503370903 503370904 513207092 513207094 513300001 513300002
+## [8] 513300003 513300004</code></pre>
 </div>
 <div id="都道府県単位での基準地域メッシュの描画" class="section level4">
 <h4>都道府県単位での基準地域メッシュの描画</h4>
 <p><strong>jpmesh</strong>では、都道府県および市区町村名を含んだ基準地域メッシュのデータセットを用意しています。これを利用することで、都道府県や市区町村単位での地域メッシュを扱うことができます。</p>
-<div class="sourceCode" id="cb25"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb25-1" data-line-number="1"><span class="kw">administration_mesh</span>(<span class="dt">code =</span> <span class="dv">33</span>, <span class="dt">to_mesh_size =</span> <span class="dv">80</span>) <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb25-2" data-line-number="2"><span class="st">  </span><span class="kw">head</span>() <span class="op">%&gt;%</span><span class="st"> </span></a>
-<a class="sourceLine" id="cb25-3" data-line-number="3"><span class="st">  </span>knitr<span class="op">::</span><span class="kw">kable</span>(<span class="dt">format =</span> <span class="st">&quot;markdown&quot;</span>)</a></code></pre></div>
+<div class="sourceCode" id="cb23"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">administration_mesh</span>(<span class="at">code =</span> <span class="dv">33</span>, <span class="at">to_mesh_size =</span> <span class="dv">80</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>() <span class="sc">%&gt;%</span> </span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  knitr<span class="sc">::</span><span class="fu">kable</span>(<span class="at">format =</span> <span class="st">&quot;markdown&quot;</span>)</span></code></pre></div>
 <table>
-<colgroup>
-<col width="9%"></col>
-<col width="90%"></col>
-</colgroup>
 <thead>
 <tr class="header">
 <th align="left">meshcode</th>
@@ -425,27 +450,27 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 <tbody>
 <tr class="odd">
 <td align="left">5133</td>
-<td align="left">list(c(133, 134, 134, 133, 133, 34, 34, 34.66667, 34.66667, 34))</td>
+<td align="left">POLYGON ((133 34, 134 34, 1…</td>
 </tr>
 <tr class="even">
 <td align="left">5233</td>
-<td align="left">list(c(133, 134, 134, 133, 133, 34.66667, 34.66667, 35.33333, 35.33333, 34.66667))</td>
+<td align="left">POLYGON ((133 34.66667, 134…</td>
 </tr>
 <tr class="odd">
 <td align="left">5234</td>
-<td align="left">list(c(134, 135, 135, 134, 134, 34.66667, 34.66667, 35.33333, 35.33333, 34.66667))</td>
+<td align="left">POLYGON ((134 34.66667, 135…</td>
 </tr>
 <tr class="even">
 <td align="left">5134</td>
-<td align="left">list(c(134, 135, 135, 134, 134, 34, 34, 34.66667, 34.66667, 34))</td>
+<td align="left">POLYGON ((134 34, 135 34, 1…</td>
 </tr>
 <tr class="odd">
 <td align="left">5333</td>
-<td align="left">list(c(133, 134, 134, 133, 133, 35.33333, 35.33333, 36, 36, 35.33333))</td>
+<td align="left">POLYGON ((133 35.33333, 134…</td>
 </tr>
 <tr class="even">
 <td align="left">5334</td>
-<td align="left">list(c(134, 135, 135, 134, 134, 35.33333, 35.33333, 36, 36, 35.33333))</td>
+<td align="left">POLYGON ((134 35.33333, 135…</td>
 </tr>
 </tbody>
 </table>
@@ -453,41 +478,38 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 </div>
 <div id="session-information" class="section level2">
 <h2>Session Information</h2>
-<div class="sourceCode" id="cb26"><pre class="sourceCode r"><code class="sourceCode r"><a class="sourceLine" id="cb26-1" data-line-number="1"><span class="kw">sessionInfo</span>()</a></code></pre></div>
-<pre><code>## R version 3.6.3 (2020-02-29)
-## Platform: x86_64-pc-linux-gnu (64-bit)
-## Running under: Debian GNU/Linux 10 (buster)
+<div class="sourceCode" id="cb24"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code></pre></div>
+<pre><code>## R version 4.0.3 (2020-10-10)
+## Platform: x86_64-apple-darwin17.0 (64-bit)
+## Running under: macOS Catalina 10.15.7
 ## 
 ## Matrix products: default
-## BLAS/LAPACK: /usr/lib/x86_64-linux-gnu/libopenblasp-r0.3.5.so
+## BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+## LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
 ## 
 ## locale:
-##  [1] LC_CTYPE=en_US.UTF-8       LC_NUMERIC=C              
-##  [3] LC_TIME=en_US.UTF-8        LC_COLLATE=C              
-##  [5] LC_MONETARY=en_US.UTF-8    LC_MESSAGES=C             
-##  [7] LC_PAPER=en_US.UTF-8       LC_NAME=C                 
-##  [9] LC_ADDRESS=C               LC_TELEPHONE=C            
-## [11] LC_MEASUREMENT=en_US.UTF-8 LC_IDENTIFICATION=C       
+## [1] C/ja_JP.UTF-8/ja_JP.UTF-8/C/ja_JP.UTF-8/ja_JP.UTF-8
 ## 
 ## attached base packages:
 ## [1] stats     graphics  grDevices utils     datasets  methods   base     
 ## 
 ## other attached packages:
-## [1] purrr_0.3.3  sf_0.9-3     jpmesh_1.2.1
+## [1] purrr_0.3.4  sf_0.9-6     jpmesh_2.0.0
 ## 
 ## loaded via a namespace (and not attached):
-##  [1] Rcpp_1.0.4.6       highr_0.8          pillar_1.4.4       compiler_3.6.3    
-##  [5] later_1.0.0        class_7.3-15       tools_3.6.3        digest_0.6.25     
-##  [9] evaluate_0.14      tibble_3.0.1       lifecycle_0.2.0    pkgconfig_2.0.3   
-## [13] rlang_0.4.6        cli_2.0.2          shiny_1.4.0.2      DBI_1.1.0         
-## [17] crosstalk_1.1.0.1  yaml_2.2.1         xfun_0.13          fastmap_1.0.1     
-## [21] e1071_1.7-3        stringr_1.4.0      knitr_1.28         vctrs_0.2.4       
-## [25] htmlwidgets_1.5.1  classInt_0.4-3     leaflet_2.0.3      grid_3.6.3        
-## [29] glue_1.4.0         R6_2.4.1           fansi_0.4.1        rmarkdown_2.1     
-## [33] magrittr_1.5       promises_1.1.0     htmltools_0.4.0    ellipsis_0.3.0    
-## [37] units_0.6-6        assertthat_0.2.1   mime_0.9           xtable_1.8-4      
-## [41] httpuv_1.5.2       utf8_1.1.4         KernSmooth_2.23-16 stringi_1.4.6     
-## [45] miniUI_0.1.1.1     crayon_1.3.4.9000</code></pre>
+##  [1] Rcpp_1.0.5         highr_0.8          pillar_1.4.6       compiler_4.0.3    
+##  [5] later_1.1.0.1      class_7.3-17       tools_4.0.3        digest_0.6.27     
+##  [9] memoise_1.1.0      tibble_3.0.4       lifecycle_0.2.0    evaluate_0.14     
+## [13] pkgconfig_2.0.3    rlang_0.4.8        cli_2.1.0          shiny_1.5.0       
+## [17] DBI_1.1.0          crosstalk_1.1.0.1  yaml_2.2.1         xfun_0.19         
+## [21] fastmap_1.0.1      e1071_1.7-4        stringr_1.4.0      dplyr_1.0.2       
+## [25] knitr_1.30         generics_0.1.0     vctrs_0.3.5        htmlwidgets_1.5.2 
+## [29] tidyselect_1.1.0   classInt_0.4-3     leaflet_2.0.3      grid_4.0.3        
+## [33] glue_1.4.2         R6_2.5.0           fansi_0.4.1        rmarkdown_2.5     
+## [37] magrittr_2.0.1     ellipsis_0.3.1     promises_1.1.1     htmltools_0.5.0   
+## [41] units_0.6-7        assertthat_0.2.1   mime_0.9           xtable_1.8-4      
+## [45] httpuv_1.5.4       utf8_1.1.4         KernSmooth_2.23-18 stringi_1.5.3     
+## [49] miniUI_0.1.1.1     crayon_1.3.4.9000</code></pre>
 </div>
 
 
