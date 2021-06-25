@@ -1,7 +1,7 @@
-691486b29286626e9286f848ddcb7ad6 *DESCRIPTION
+c3d64e6ddb1753ebb8c6069010b7ae83 *DESCRIPTION
 321473a5d25f3b721e5ed69a40dfb304 *LICENSE
 6533cfebf57e2b270604b04f002b29e7 *NAMESPACE
-04b1852bf5fd2916683fcb9d028dbf98 *NEWS.md
+45ad1bc93a956f59067afb70616c1192 *NEWS.md
 50c339b2fa9b37afa94f8b7935ee4d4a *R/01_imports.R
 3cb10cacf404c71719b475ac1f13e923 *R/administration_mesh.R
 2ef7271c3eb32a5277bd3a4895d9d727 *R/coords_to_mesh.R
@@ -18,12 +18,12 @@ ab82b6b8c9f2960d12705439a914656a *R/is_mesh.R
 98e071455be1737fe945a579d3e78c36 *R/sysdata.rda
 7a9306676f3432aca974412f694c0eff *R/util.R
 8d2487dbf45064f33b08e5a80830b68e *R/utils-pipe.R
-875f024dff1e8b08e2914323199fe2e5 *build/vignette.rds
+a78585d0dad77a7ad14ccf97d7e75dc7 *build/vignette.rds
 49a4683300e569acf411352583b89aaf *data/jpnrect.rda
 5eebaef5da175840f3f40b20a1e6afe7 *data/sf_jpmesh.rda
 b466b42681801eca4b31c03604f9b692 *inst/doc/usage.R
 33e7ea4b356062db0f014b80ce3ceb48 *inst/doc/usage.Rmd
-0647833eb60920b1735b6bcd764305bd *inst/doc/usage.html
+6e593daa4717c48c4b212a78ff65ec36 *inst/doc/usage.html
 d6b908e942abe2bead133e522dacea1c *man/administration_mesh.Rd
 18478cae0732a63b3fc588420d9eef0c *man/coarse_gather.Rd
 14e01c65d2d1550a4ec8446c27a86392 *man/converter.Rd
@@ -32,8 +32,8 @@ d6b908e942abe2bead133e522dacea1c *man/administration_mesh.Rd
 f713b14e63d273de346376e7124358d6 *man/eval_jp_boundary.Rd
 23ea4084b64dfaada99093fe756b1571 *man/export_mesh.Rd
 bd7b19286cfdbeb6cf0e010a90fe8334 *man/export_meshes.Rd
-90954acc98c30640b4360de37a6d3862 *man/figures/README-jpn_simple_map-1.png
-8c99bb93b077d185443420b81db50c08 *man/figures/README-jpn_simple_map_sf-1.png
+69612a9abf7a1350908c4552de611141 *man/figures/README-jpn_simple_map-1.png
+d048e4896fe9028fb8c1e5973743a2b7 *man/figures/README-jpn_simple_map_sf-1.png
 0236db6f7abbdc8b6d72d142afb8849a *man/figures/README-mesh_pref33_map-1.png
 8b2753fb50c0ab818c5941a87b5f0461 *man/figures/README-mesh_pref_33_leaflet-1.png
 01c4aad6c57059484a4888644dcbb895 *man/figures/logo.png
@@ -75,7 +75,7 @@ d03f90bb98638eeb84545a1712d2e9a9 *tests/testthat/test-coords_to_meshcode.R
 0f3fa866fcdc66b43ac9baa68193cf19 *tests/testthat/test-export_mesh.R
 52b10f3a521f6f6e3a3e0c551ebd4bdd *tests/testthat/test-find.R
 395474a17e7deb82da23d3b1502545bd *tests/testthat/test-fine_separate.R
-4a23cd9a1f53d8c089b7a38c6aca527d *tests/testthat/test-internal.R
+faf97a15a8281d11126d3600d1bc1d0e *tests/testthat/test-internal.R
 91b0b8a2253ab412b34f6f60c3536c63 *tests/testthat/test-mesh_to_coords.R
 9e5fee62e12661cd5df271dc77e406be *tests/testthat/test-meshcode.R
 765c652e25419d2ccf0457fadf4f64a0 *tests/testthat/test-neighborhood.R
